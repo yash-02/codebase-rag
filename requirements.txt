@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+chromadb
+sentence-transformers
+scikit-learn
+requests
+anthropic
+openai
+mcp

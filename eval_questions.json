@@ -1,0 +1,128 @@
+[
+  {
+    "question": "Where is class imbalance handled before training?",
+    "type": "flow",
+    "primary_ids": ["data_utils.py::undersample"],
+    "neighbor_ids": ["data_utils.py::prepare_training_data"]
+  },
+  {
+    "question": "What handles balancing the dataset when one class is much smaller than the other?",
+    "type": "flow",
+    "primary_ids": ["data_utils.py::undersample"],
+    "neighbor_ids": ["data_utils.py::prepare_training_data"]
+  },
+  {
+    "question": "How is the training data prepared before it reaches the model?",
+    "type": "flow",
+    "primary_ids": ["data_utils.py::prepare_training_data"],
+    "neighbor_ids": ["data_utils.py::load_raw_data", "data_utils.py::undersample"]
+  },
+  {
+    "question": "Where does the model actually get trained?",
+    "type": "flow",
+    "primary_ids": ["model.py::ModelTrainer.train"],
+    "neighbor_ids": ["pipeline.py::run_training_pipeline", "model.py::cross_validate"]
+  },
+  {
+    "question": "What computes accuracy and F1 score for a trained model?",
+    "type": "flow",
+    "primary_ids": ["model.py::evaluate_model"],
+    "neighbor_ids": ["pipeline.py::run_training_pipeline", "model.py::cross_validate"]
+  },
+  {
+    "question": "Where is the full training pipeline orchestrated end to end?",
+    "type": "flow",
+    "primary_ids": ["pipeline.py::run_training_pipeline"],
+    "neighbor_ids": ["data_utils.py::prepare_training_data", "model.py::ModelTrainer.train", "model.py::ModelTrainer.save", "model.py::evaluate_model"]
+  },
+  {
+    "question": "How does inference work for a single customer sample?",
+    "type": "flow",
+    "primary_ids": ["pipeline.py::run_inference"],
+    "neighbor_ids": ["api.py::predict_endpoint"]
+  },
+  {
+    "question": "What happens when a prediction request comes in?",
+    "type": "flow",
+    "primary_ids": ["api.py::predict_endpoint"],
+    "neighbor_ids": ["pipeline.py::run_inference"]
+  },
+  {
+    "question": "What triggers retraining of the model?",
+    "type": "flow",
+    "primary_ids": ["api.py::retrain_endpoint"],
+    "neighbor_ids": ["pipeline.py::run_training_pipeline"]
+  },
+  {
+    "question": "Where is a trained model saved to disk?",
+    "type": "flow",
+    "primary_ids": ["model.py::ModelTrainer.save"],
+    "neighbor_ids": ["pipeline.py::run_training_pipeline"]
+  },
+  {
+    "question": "Where is a previously trained model loaded back from disk inside ModelTrainer?",
+    "type": "flow",
+    "primary_ids": ["model.py::ModelTrainer.load"],
+    "neighbor_ids": []
+  },
+  {
+    "question": "What runs evaluation across multiple folds of data?",
+    "type": "flow",
+    "primary_ids": ["model.py::cross_validate"],
+    "neighbor_ids": ["model.py::ModelTrainer.train", "model.py::evaluate_model"]
+  },
+  {
+    "question": "Where is the raw customer dataset read from a CSV file?",
+    "type": "flow",
+    "primary_ids": ["data_utils.py::load_raw_data"],
+    "neighbor_ids": ["data_utils.py::prepare_training_data"]
+  },
+  {
+    "question": "What are the parameters of ModelTrainer's train method?",
+    "type": "focused",
+    "primary_ids": ["model.py::ModelTrainer.train"],
+    "neighbor_ids": []
+  },
+  {
+    "question": "What are the inputs to run_training_pipeline?",
+    "type": "focused",
+    "primary_ids": ["pipeline.py::run_training_pipeline"],
+    "neighbor_ids": []
+  },
+  {
+    "question": "Which function returns accuracy and f1 as its result?",
+    "type": "focused",
+    "primary_ids": ["model.py::evaluate_model"],
+    "neighbor_ids": []
+  },
+  {
+    "question": "What columns are dropped before splitting into features and target?",
+    "type": "focused",
+    "primary_ids": ["data_utils.py::prepare_training_data"],
+    "neighbor_ids": []
+  },
+  {
+    "question": "Where is the random forest classifier configured with its parameters?",
+    "type": "focused",
+    "primary_ids": ["model.py::ModelTrainer.__init__"],
+    "neighbor_ids": []
+  },
+  {
+    "question": "Which module ties data preparation and model training together into one pipeline?",
+    "type": "focused",
+    "primary_ids": ["pipeline.py::run_training_pipeline"],
+    "neighbor_ids": []
+  },
+  {
+    "question": "What class wraps the model with save and load helpers?",
+    "type": "focused",
+    "primary_ids": ["model.py::ModelTrainer.__init__"],
+    "neighbor_ids": []
+  },
+  {
+    "question": "How does the system handle user login and authentication?",
+    "type": "none",
+    "primary_ids": [],
+    "neighbor_ids": []
+  }
+]

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codebase-Aware RAG</title>
+  <link rel="stylesheet" href="/ui/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <section class="brand">
+        <h1>Codebase-Aware RAG</h1>
+        <p>Index Python code, retrieve whole functions, expand through the call graph, and ask questions with citations.</p>
+      </section>
+
+      <section class="status" aria-label="System status">
+        <div class="status-row"><span>Answer backend</span><strong>__ANSWER_PROVIDER__</strong></div>
+        <div class="status-row"><span>API</span><strong>localhost:8000</strong></div>
+        <div class="status-row"><span>Retrieval</span><strong>Graph-expanded</strong></div>
+      </section>
+    </aside>
+
+    <main>
+      <section class="toolbar" aria-label="Index repository">
+        <label>
+          Repository path
+          <input id="repoPath" value="./test_repo" autocomplete="off">
+        </label>
+        <button id="indexBtn" type="button">Index repo</button>
+      </section>
+
+      <section class="workspace">
+        <section class="panel ask-panel">
+          <form class="ask-form" id="askForm">
+            <label>
+              Question
+              <textarea id="question" placeholder="What does the pipeline do?"></textarea>
+            </label>
+            <div class="ask-actions">
+              <label>
+                Results
+                <select id="topK">
+                  <option value="3" selected>3</option>
+                  <option value="5">5</option>
+                  <option value="8">8</option>
+                </select>
+              </label>
+              <button id="askBtn" type="submit">Ask</button>
+            </div>
+          </form>
+          <article id="answer" class="answer empty">Index a repo, ask a question, and the answer will appear here.</article>
+        </section>
+
+        <aside class="side">
+          <section class="panel side-section">
+            <h2>Index status</h2>
+            <div id="indexStatus" class="message">Ready.</div>
+          </section>
+
+          <section class="panel side-section">
+            <h2>Sources</h2>
+            <ul id="sources" class="sources"></ul>
+            <div id="sourceEmpty" class="message">No sources yet.</div>
+          </section>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script src="/ui/app.js"></script>
+</body>
+</html>

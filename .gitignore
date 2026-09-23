@@ -1,0 +1,28 @@
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Generated vector indexes (regenerate via /index or retrieval_eval.py)
+chroma_db/
+chroma_db_eval/
+
+# Runtime logs
+*.log
+server_*.out.log
+server_*.err.log
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Scheduled task lock (local runtime state)
+.claude/scheduled_tasks.lock
+.claude/settings.local.json
