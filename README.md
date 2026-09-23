@@ -85,19 +85,45 @@ All files import flat (`from ast_parser import ...`) — keep them in one folder
 
 ## Setup
 
-```bash
+Requires **Python 3.10+**. Steps differ slightly by OS because of how virtual environments are created/activated — everything else (the commands you actually run day to day) is identical.
+
+### Windows (PowerShell or Command Prompt)
+
+```powershell
+git clone https://github.com/yash-02/codebase-rag.git
+cd codebase-rag
+python -m venv .venv
+.venv\Scripts\activate
 pip install -r requirements.txt
 ```
+
+If PowerShell blocks the activation script with an execution-policy error, run this once first, then retry `.venv\Scripts\activate`:
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+### macOS / Linux (bash/zsh)
+
+```bash
+git clone https://github.com/yash-02/codebase-rag.git
+cd codebase-rag
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+---
 
 First run downloads the embedding model (~80MB, one-time, needs internet). Every run after that works fully offline.
 
 ### Optional: local LLM for real answers (recommended, free)
 
-1. Install [Ollama](https://ollama.com/download)
+1. Install [Ollama](https://ollama.com/download) — native installers for Windows, macOS, and Linux are all on that page.
 2. Pull a model:
    ```bash
    ollama pull llama3.1:8b
    ```
+   (Same command on Windows, macOS, and Linux — run it in PowerShell/Terminal after installing Ollama.)
 3. In `server.py`, set:
    ```python
    answer_provider = get_answer_provider(backend="ollama")
@@ -133,36 +159,52 @@ Restart the server after changing this line — it's read once at startup, not p
 
 **1. Point `test_repo/` at the code you want to query** (copy in your own project's `.py` and `.ipynb` files).
 
-**2. Start the server:**
+**2. Start the server** (make sure your virtual environment is activated first — see Setup above):
+
+Windows:
+```powershell
+python server.py
+```
+
+macOS / Linux:
 ```bash
 python3 server.py
 ```
 
+Leave this running — it prints `Open the browser UI at http://localhost:8000/` and serves requests from this terminal. Open a **second** terminal for the next steps (remember to activate the same `.venv` there too if you use the `curl`/CLI steps below).
+
 **3. Index the repo** (run once, or again whenever the code changes):
+
+macOS / Linux / Windows with `curl` (Windows 10+ ships `curl.exe` natively, works in PowerShell too):
 ```bash
 curl -X POST http://localhost:8000/index \
   -H "Content-Type: application/json" \
   -d '{"repo_path": "./test_repo"}'
 ```
 
+Windows PowerShell (native alternative, no `curl` needed):
+```powershell
+$body = @{ repo_path = "./test_repo" } | ConvertTo-Json
+Invoke-RestMethod -Uri "http://localhost:8000/index" -Method Post -ContentType "application/json" -Body $body
+```
+
 **4. Ask questions:**
+
+macOS / Linux / Windows with `curl`:
 ```bash
 curl -X POST http://localhost:8000/ask \
   -H "Content-Type: application/json" \
   -d '{"question": "where is class imbalance handled?"}'
 ```
 
-**PowerShell equivalent:**
+Windows PowerShell:
 ```powershell
-$body = @{ repo_path = "./test_repo" } | ConvertTo-Json
-Invoke-RestMethod -Uri "http://localhost:8000/index" -Method Post -ContentType "application/json" -Body $body
-
 $body = @{ question = "where is class imbalance handled?" } | ConvertTo-Json
 $response = Invoke-RestMethod -Uri "http://localhost:8000/ask" -Method Post -ContentType "application/json" -Body $body
 $response.answer
 ```
 
-**Or use the browser:** with the server running, open `http://localhost:8000/` for the app UI. You can index a repo, ask a question, choose how many retrieved results to use, and see the answer sources in one page.
+**Or skip the terminal entirely — use the browser (same on every OS):** with the server running, open `http://localhost:8000/` for the app UI. You can index a repo, ask a question, choose how many retrieved results to use, and see the answer sources in one page.
 
 The FastAPI docs are still available at `http://localhost:8000/docs` if you want to test the raw endpoints.
 
@@ -206,7 +248,8 @@ top_k | expand | primary_recall | neighbor_recall | n_primary | n_neighbor
 At `top_k=3`, one-hop graph expansion lifts `neighbor_recall` from 50% to 83.3% — a measured answer to "does the call-graph expansion in Phase 4 actually help," not just an assumption.
 
 ```bash
-python3 retrieval_eval.py
+python3 retrieval_eval.py        # macOS/Linux
+python retrieval_eval.py         # Windows
 ```
 
 ### Answer-quality evaluation (Phase 6b)
@@ -223,7 +266,8 @@ Compared against the retrieval-level numbers above (`primary_recall` 90.0%, `nei
 This is the honest, useful finding this evaluation was built to surface: **good retrieval does not automatically mean a good final answer** — they are separate failure points and need separate measurement. (Caveat: scoring is a strict identifier-name substring match, so an answer that correctly describes a function without naming it verbatim is scored as a miss — the reported numbers are a lower bound on true answer quality, not an exact one.)
 
 ```bash
-python3 answer_eval.py
+python3 answer_eval.py        # macOS/Linux
+python answer_eval.py         # Windows
 ```
 
 ---
@@ -267,16 +311,31 @@ Three tools:
 
 Run it directly (stdio transport):
 ```bash
-python3 mcp_server.py
+python3 mcp_server.py        # macOS/Linux
+python mcp_server.py         # Windows
 ```
 
-Register it with an MCP client, e.g. in `claude_desktop_config.json`:
+Register it with an MCP client, e.g. in `claude_desktop_config.json`. Use the Python interpreter **inside this project's virtual environment** so the right dependencies are on the path — MCP clients don't activate `.venv` for you.
+
+macOS / Linux:
 ```json
 {
   "mcpServers": {
     "codebase-rag": {
-      "command": "python3",
-      "args": ["/absolute/path/to/mcp_server.py"]
+      "command": "/absolute/path/to/codebase-rag/.venv/bin/python3",
+      "args": ["/absolute/path/to/codebase-rag/mcp_server.py"]
+    }
+  }
+}
+```
+
+Windows:
+```json
+{
+  "mcpServers": {
+    "codebase-rag": {
+      "command": "C:\\absolute\\path\\to\\codebase-rag\\.venv\\Scripts\\python.exe",
+      "args": ["C:\\absolute\\path\\to\\codebase-rag\\mcp_server.py"]
     }
   }
 }
